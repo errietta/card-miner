@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "card-miner"
+version = "0.1.0"
+description = ""
+authors = ["Erry Kostala"]
+readme = "README.md"
+packages = [{include = "card_miner"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fugashi = {extras = ["unidic-lite"], version = "^1.4.0"}
+sentence-transformers = "^4.1.0"
+scikit-learn = "^1.6.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
