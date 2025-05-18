@@ -21,7 +21,6 @@ COPY .env .
 
 VOLUME ["/app"]
 
-# Set environment variables (edit as needed)
 ENV PYTHONUNBUFFERED=1
 
 CMD ["python", "script.py"]
