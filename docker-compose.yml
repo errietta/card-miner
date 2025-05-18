@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  card-miner:
+    build: .
+    container_name: card-miner
+    volumes:
+      - ./:/app
+    command: ["python", "script.py"]
