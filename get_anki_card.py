@@ -1,6 +1,5 @@
 """
 get_anki_card.py
-This script retrieves an access token from Auth0 for the AnkiMaker API
 """
 
 import logging
