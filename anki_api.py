@@ -1,9 +1,13 @@
+import logging
 import os
 
 import requests
 from strip_tags import strip_tags
 
+logger = logging.getLogger(__name__)
+
 ANKI_SERVER = os.getenv("ANKI_SERVER", "http://192.168.1.125:8766")
+
 
 def get_anki_sentences(deck_name=None):
     """
@@ -18,14 +22,13 @@ def get_anki_sentences(deck_name=None):
     else:
         query["params"]["query"] = ""
 
-
     response = requests.post(ANKI_SERVER, json=query, timeout=60)
     note_ids = response.json().get("result", [])
     if not note_ids:
-        print(f"No notes found in deck '{deck_name}'")
+        logger.error(f"No notes found in deck '{deck_name}'")
         return []
 
-    print(f"Found {len(note_ids)} notes in deck '{deck_name}'")
+    logger.info(f"Found {len(note_ids)} notes in deck '{deck_name}'")
     # Fetch note info
     notes_query = {"action": "notesInfo", "version": 6, "params": {"notes": note_ids}}
 
@@ -46,6 +49,7 @@ def get_anki_sentences(deck_name=None):
             value = strip_tags(value)
             sentences.append(value)
     return sentences
+
 
 def add_anki_card(card, deck_name):
     """
@@ -80,6 +84,6 @@ def add_anki_card(card, deck_name):
     }
     response = requests.post(ANKI_SERVER, json=payload, timeout=60)
     if response.ok:
-        print(f"Added to Anki: {card['reply']['sentence']}")
+        logger.info(f"Added to Anki: {card['reply']['sentence']}")
     else:
-        print(f"Failed to add: {card['reply']['sentence']}")
+        logger.error(f"Failed to add: {card['reply']['sentence']}")

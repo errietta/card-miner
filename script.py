@@ -2,14 +2,21 @@ import csv
 import re
 import sys
 import time
+import logging
+from random import shuffle
 
 from dotenv import load_dotenv
+
 load_dotenv()
+
+logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+logger = logging.getLogger(__name__)
+
 
 from anki_api import add_anki_card, get_anki_sentences
 from filter import filter_sentences_by_new_words
 from get_anki_card import get_anki_card
-from scraper import get_random_news_article, scrape_news_article
+from scraper import get_recent_news_articles, scrape_news_article
 
 
 ADD_TO_ANKI = "--add-to-anki" in sys.argv
@@ -17,20 +24,28 @@ WRITE_DECK_NAME = "Erryday deck II: Electric boogaloo"
 
 READ_DECK_NAMES = [WRITE_DECK_NAME, "Erryday deck"]
 
-article_url = get_random_news_article()
-article = scrape_news_article(article_url)
+# article_url = get_random_news_article()
 
-article_sentences = re.split(r"[。！？]", article["content"])
-article_sentences = [s.strip() for s in article_sentences if s.strip()]
+article_urls = get_recent_news_articles()
 
+shuffle(article_urls)
+
+article_urls = article_urls[:5]
 existing_sentences = set()
+article_sentences = set()
+
+for article_url in article_urls:
+    article = scrape_news_article(article_url)
+    sentences = re.split(r"[。！？]", article["content"])
+    article_sentences.update([s.strip() for s in sentences if s.strip()])
 
 for deck in READ_DECK_NAMES:
     existing_sentences.update(get_anki_sentences('"' + deck + '"'))
 
 result = filter_sentences_by_new_words(article_sentences, existing_sentences)
-print("Sentences with new words:")
-print(result[:10])
+shuffle(result)
+logger.debug("Sentences with new words:")
+logger.debug(result[:10])
 
 anki_cards = [get_anki_card(s[0]) for s in result[:10]]
 timestamp = int(time.time())
@@ -53,4 +68,4 @@ if ADD_TO_ANKI:
     for card in anki_cards:
         add_anki_card(card, WRITE_DECK_NAME)
 
-print("Wrote to file:", CSV_FILE)
+logger.info("Wrote to file: %s", CSV_FILE)

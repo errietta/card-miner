@@ -1,2 +1,2 @@
 docker:
-	docker-compose run -it card-miner python script.py  --add-to-anki
+	docker-compose run -i card-miner python script.py  --add-to-anki
